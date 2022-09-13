@@ -1,0 +1,13 @@
+{
+    "name": "mywebsite",
+    "version": "1.0.0",
+    "description": "Bartek Grzesik Portfolio",
+    "scripts": {
+        "start": "node app.js"
+    },
+    "dependencies": {
+        "express": "^4.18.1",
+        "gsap": "^3.11.1",
+        "three": "^0.144.0"
+    }
+}

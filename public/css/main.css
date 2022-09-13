@@ -1,0 +1,262 @@
+/*--- GLOBAL ---*/
+*,
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: 'Space Grotesk', 'Inter', arial, sans-serif;
+  font-size: 18px;
+}
+html {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  transition: 1.2s background-color, .2s color, .2s fill;
+}
+body {
+  background-color: var(--backgroud-color);
+  color: var(--font-color);
+  transition: 1.2s background-color, .2s color, .2s fill;
+}
+:root {
+  --backgroud-color: #111;
+  --backgroud-color-contrast: #161717; 
+  --font-color: #e6e6e6;
+  --logo-color: #ffffff;
+  --font-color-hover: #ffffff;
+  /*---*/
+  /* change this to setting sliders contents */
+  --bug-transalte: translateY(100%);
+}
+
+.content {
+  cursor: -webkit-grab; 
+  cursor:    -moz-grab; 
+  cursor:         grab; 
+  margin: 0;
+  padding: 0;
+  /* background-color: var(--backgroud-color); */
+}
+
+.content:active {
+  cursor: -webkit-grabbing;
+  cursor:    -moz-grabbing;
+  cursor:         grabbing;
+}
+
+.noselect {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* --- SCROLLBAR --- */
+/* width */
+::-webkit-scrollbar {
+  width: 6.13px;
+}
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgb(193, 193, 193);
+  border-radius: 15px;
+}
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(221, 221, 221);
+}
+
+/*--- RESOURCES ---*/
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital@0;1&family=Space+Grotesk&display=swap');
+
+/*--- NAVBAR ---*/
+.navbar {
+  z-index: 2;
+  position: fixed;
+  top: 3.42vh;
+  left: 3.31vw;
+  font-size: 0;
+  font-weight: 500;
+  background-color: transparent;
+  transition: all .5s ease;
+}
+
+.logo {
+  color: var(--logo-color);
+  font-family: 'Inter', sans-serif;
+  background-color: transparent;
+  transition: ease .5s color;
+}
+
+.about {
+  margin: 3vh 0 .2vh 0;
+}
+
+.works {
+  margin: .2vh 0 .2vh 0;
+}
+
+.about,
+.works,
+.contact {
+  cursor: pointer;
+  background-color: transparent;
+  font-weight: 100;
+  transition: ease .5s margin,
+              ease 2s margin-top;
+}
+
+.about:hover,
+.works:hover,
+.contact:hover {
+  color: var(--font-color-hover);
+  margin-left: 5%;
+  font-weight: 800;
+  transform: skewX(-5deg);
+}
+
+/*--- ADDITIONAL-ELEMENTS ---*/
+.copyright {
+  z-index: 2;
+  position: fixed;
+  bottom: 3.42vh;
+  left: 3.31vw;
+  font-weight: 500;
+  transition: all .5s ease;
+  background-color: transparent;
+}
+
+.options {
+  z-index: 2;
+  position: fixed;
+  top: calc(3vh - 4px); /* 2.2vh dla contrast logo*/
+  right: 3.31vw;
+  padding: 4px;
+  cursor: pointer;
+  background-color: transparent;
+  transition: all .5s ease;
+}
+
+.changeLanguage {
+  background-color: transparent;
+  font-size: 18px;
+  margin-right: 32px;
+  transition: .3s;
+}
+
+.changeLanguage:hover {
+  font-weight: 700;
+}
+
+/* .changeTheme {
+  width: 23.13px;
+  height: 23px;
+  padding: 3px;
+  fill: var(--font-color);
+  background-color: transparent;
+  transition: ease .4s all;
+  transform: translateY(5px); 
+}
+
+.changeTheme:hover {
+  transform: translateY(5px) scale(1.15);
+} */
+
+.changeTheme {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background-color: var(--font-color);
+  transition: ease .3s all;
+  margin: 1px;
+  transform: translateY(2px);
+}
+.changeTheme:hover {
+  transform: translateY(2px) scale(1.2) rotate(90deg);
+}
+
+.info {
+  z-index: 2;
+  position: absolute;
+  bottom: 3.42vh;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  fill: var(--font-color);
+  color: var(--font-color);
+  background-color: transparent;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 200;
+  transition: 3s transform;
+}
+
+/*--- RESPONSIVE ---*/
+@media (max-width: 850px) {
+  .navbar {
+    left: 7vw;
+  }
+
+  .copyright {
+    left: 7vw;
+  }
+
+  .options {
+    /* top: 0.9vh; */
+    right: 7vw;
+  }
+
+  .close__About,
+  .close__Contact {
+    padding: 2vh 6vw;
+  }
+
+  .contact__Text--Email {
+    font-size: 2.5vw;
+    top: 55%;
+  }
+
+  .info {
+    display: none;
+  }
+}
+
+/*--- FRAME 3D OBJECT ---*/
+.objects3d {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  background-color: var(--backgroud-color);
+  transition: 2s;
+  transform: translateY(-30%);
+}
+
+/* --- LOADER --- */
+#loader {
+  position: fixed;
+  z-index: 100;
+  height: 100vh;
+  width: 100%;
+  background-color: #fff;
+  transition: cubic-bezier(0.250, 0.100, 0.055, 0.990) 2s all;
+}
+
+#progressCount {
+  position: fixed;
+  bottom: 2vh;
+  left: 3vw;
+  font-size: 18px; 
+  background-color: transparent;
+  color: black;
+}
+
