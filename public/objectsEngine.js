@@ -7,11 +7,13 @@ import * as THREE from 'three';
 import { OrbitControls } from './jsm/controls/OrbitControls.js';
 import { MTLLoader } from './jsm/loaders/MTLLoader.js';
 import { OBJLoader } from './jsm/loaders/OBJLoader.js';
-    // import { EffectComposer } from './jsm/postprocessing/EffectComposer.js';
-	// import { RenderPass } from './jsm/postprocessing/RenderPass.js';
-    // import { OutlinePass } from './jsm/postprocessing/OutlinePass.js';
+// import { EffectComposer } from './jsm/postprocessing/EffectComposer.js';
+// import { RenderPass } from './jsm/postprocessing/RenderPass.js';
+// import { OutlinePass } from './jsm/postprocessing/OutlinePass.js';
 
-// import gsap from "gsap";
+
+
+
 /* --  INIT ALL  -- */
 
 window.addEventListener('load', init, false);
@@ -109,52 +111,52 @@ function createWorld() {
     controls.maxPolarAngle = Math.PI / 2; // create floor - dont see a down side
     controls.rotateSpeed = 0.9;
 
-   
+
 }
 
 function responsiveScene() {
-     // responsive
-     let windowWidth = window.innerWidth;
-     if (windowWidth > 950) {
-         camera.position.z = 2.9;
-         controls.minDistance = 2.4;
-         controls.maxDistance = 3.4;
-     }
-     if (windowWidth < 950) {
-         camera.position.z = 3.6;
-         controls.minDistance = 3.1;
-         controls.maxDistance = 4.1;
-     }
-     if (windowWidth < 700) {
-         camera.position.z = 4.6;
-         controls.minDistance = 4.1;
-         controls.maxDistance = 5.1;
-     }
- 
- 
-     window.addEventListener('resize', () => {
-         // object responsive
-         if (window.innerWidth > 950) {
-             camera.position.z = 2.9;
-             controls.minDistance = 2.4;
-             controls.maxDistance = 3.4;
-         }
-         if (window.innerWidth < 950) {
-             camera.position.z = 3.6;
-             controls.minDistance = 3.1;
-             controls.maxDistance = 4.1;
-         }
-         if (window.innerWidth < 700) {
-             camera.position.z = 4.6;
-             controls.minDistance = 4.1;
-             controls.maxDistance = 5.1;
-         }
-         // 
-         camera.aspect = window.innerWidth / window.innerHeight;
-         renderer.setSize(window.innerWidth, window.innerHeight);
-         renderer.render(scene, camera);
-         camera.updateProjectionMatrix();
-     }, false);
+    // responsive
+    let windowWidth = window.innerWidth;
+    if (windowWidth > 950) {
+        camera.position.z = 2.9;
+        controls.minDistance = 2.4;
+        controls.maxDistance = 3.4;
+    }
+    if (windowWidth < 950) {
+        camera.position.z = 3.6;
+        controls.minDistance = 3.1;
+        controls.maxDistance = 4.1;
+    }
+    if (windowWidth < 700) {
+        camera.position.z = 4.6;
+        controls.minDistance = 4.1;
+        controls.maxDistance = 5.1;
+    }
+
+
+    window.addEventListener('resize', () => {
+        // object responsive
+        if (window.innerWidth > 950) {
+            camera.position.z = 2.9;
+            controls.minDistance = 2.4;
+            controls.maxDistance = 3.4;
+        }
+        if (window.innerWidth < 950) {
+            camera.position.z = 3.6;
+            controls.minDistance = 3.1;
+            controls.maxDistance = 4.1;
+        }
+        if (window.innerWidth < 700) {
+            camera.position.z = 4.6;
+            controls.minDistance = 4.1;
+            controls.maxDistance = 5.1;
+        }
+        // 
+        camera.aspect = window.innerWidth / window.innerHeight;
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.render(scene, camera);
+        camera.updateProjectionMatrix();
+    }, false);
 }
 
 /* --  CREATE LIGHT  -- */
@@ -237,7 +239,7 @@ function createMainOBJ() {
                         //object.scale.set(0.9,0.9,0.9);
                         object.receiveShadow = true;
                         object.castShadow = true;
-                        
+
                         Flower3d.add(object);
                     },
                     onProgress);
@@ -246,18 +248,27 @@ function createMainOBJ() {
 }
 
 const about = document.querySelector('.about');
-
 function aboutNavigation() {
     about.addEventListener('click', () => {
         stopAnimation(15000);
-        gsap.to(camera.position, {
-            z: 14,
-            y: 10,
-            duration: 1.5,
-            onUpdate: function() {
-                camera.lookAt(0,0,0);
+        gsap.to(scene.rotation, {
+            y: 1.8,
+            duration: 1,
+            onUpdate: function () {
+                camera.lookAt(0, 0, 0);
             }
-        });        
+        })
+        gsap.to(camera.position, {
+            x: 0.5,
+            y: -0.7,
+            z: 1.7,
+            duration: 2.5,
+            onUpdate: function () {
+                camera.lookAt(0, 0, 0);
+            }
+        });
+
+
     });
 }
 
@@ -284,13 +295,13 @@ function stopAnimation(time) {
 }
 const infoTab = document.querySelector('.info');
 var infoTab_status = 1;
-document.querySelector('.objects3d').addEventListener('mousedown', () => { 
-    stopAnimation(10000); 
-    if(infoTab_status == 1) {
+document.querySelector('.objects3d').addEventListener('mousedown', () => {
+    stopAnimation(10000);
+    if (infoTab_status == 1) {
         infoTab.style.transform = 'translateY(100vh)';
         infoTab_status = 0;
     }
-    
+
 });
 
 
