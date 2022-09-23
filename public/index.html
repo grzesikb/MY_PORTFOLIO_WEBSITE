@@ -6,14 +6,7 @@
     <title>Bartek Grzesik</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/contact.css">
-    <link rel="stylesheet" href="css/works.css">
-    <style>
-        body {
-            overflow: hidden;
-            margin: 0;
-        }
-    </style>
+    <link rel="stylesheet" href="css/dynamicMenu.css">
     <script async="async" src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
 
     <script type="importmap">
@@ -33,25 +26,20 @@
         <p id="progressCount"></p>
     </div>
     <div class="content noselect">
-        <div class="navbar">
-            <a>
-                <div class="logo">Bartek Grzesik</div>
-            </a>
-            <div class="about">About</div>
-            <div class="works">Works</div>
-            <div class="contact">Contact</div>
-        </div>
-        <div class="copyright">2022©</div>
-        <div class="options">
-            <span class="changeLanguage">PL</span>
-            <div class="changeTheme"></div>
-            <!-- <svg class="changeTheme" viewbox="0 0 20.167 14">
-                    <path
-                        d="M9.972,1.928a7.263,7.263,0,0,0-7.4,7.117,7.263,7.263,0,0,0,7.4,7.117,7.263,7.263,0,0,0,7.4-7.117,7.263,7.263,0,0,0-7.4-7.117ZM4.421,9.045A5.448,5.448,0,0,1,9.972,3.707V14.383A5.448,5.448,0,0,1,4.421,9.045Z"
-                        transform="matrix(0.839, 0.545, -0.545, 0.839, 6.647, -3.017)"/>
-                </svg> -->
-        </div>
-        <div class="info">
+    <a><div class="logo">Bartek Grzesik</div></a>
+    <div class="menuText">MENU</div>
+    <div class="dynamicMenu">
+        <div class="about__btn">About me</div>
+        <a href="#" class="language__btn">PL</a>
+        <svg class="theme__btn" viewbox="0 0 20.167 14">
+            <path
+            d="M9.972,1.928a7.263,7.263,0,0,0-7.4,7.117,7.263,7.263,0,0,0,7.4,7.117,7.263,7.263,0,0,0,7.4-7.117,7.263,7.263,0,0,0-7.4-7.117ZM4.421,9.045A5.448,5.448,0,0,1,9.972,3.707V14.383A5.448,5.448,0,0,1,4.421,9.045Z"
+            transform="matrix(0.839, 0.545, -0.545, 0.839, 6.647, -3.017)"/>
+        </svg>
+        <!-- <p class="contact__description">contact@bartekgrzesik.pl</p> -->
+        <a href="https://937heqd589l.typeform.com/to/WWLau2Vo" target=”_blank” class="contact__btn">Let's Talk</a>
+    </div>
+    <div class="info">
             To better experience grab and rotate scene
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-badge-3d"
                 viewBox="0 0 16 16" style="background-color: transparent; transform: translateY(3px);">
@@ -63,47 +51,11 @@
         </div>
         <div class="objects3d"></div>
     </div>
-    <div class="contact__Content">
-        <div class="close__Contact noselect">close</div>
-        <div class="contact__Text">
-            <div class="contact__Text--Main noselect">Let's Talk</div>
-            <div class="contact__Text--Email">contact@bartekgrzesik.pl</div>
-        </div>
-        <div class="contact__TextEnd noselect">Thank you! I will try to answer you as soon as possible</div>
-        <form>
-            <input type="text" name="name" id="contact__Input--Name" minlenght="2" maxlength="50" autocomplete="off"
-                required>
-            <label for="name" class="contact__Input--Name-Label">What's your name?</label>
-            <input type="email" name="email" id="contact__Input--Email" maxlength="50" autocomplete="off" required>
-            <label for="email" class="contact__Input--Email-Label">What's your e-mail?</label>
-            <textarea id="contact__Input--Message" name="message" rows="4" cols="50" maxlength="700"
-                required></textarea>
-            <label for="message" class="contact__Input--Message-Label">Say Hi! Message Here</label>
-            <button class="contact__Navigation noselect" type="submit">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                    class="bi bi-arrow-right" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd"
-                        d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
-                </svg>
-            </button>
-        </form>
-    </div>
-
-    <div class="works__Content noselect">
-        <div class="close__Works">close</div>
-        <li class="works__List">
-            <ul class="works__List--Text">NOTOSZOK</ul>
-            <ul class="works__List--Text">F1 WEBFOLIO</ul>
-            <ul class="works__List--Text">NIKE</ul>
-            <ul class="works__List--Text">EXPERIENCE</ul>
-            <ul class="works__List--Text">TEST 99</ul>
-        </li>
-    </div>
-
+    
     <!-- Scripts -->
     <script type="module" src="objectsEngine.js"></script>
-    <script src="js/navbarNavigation.js"></script>
-    <script src="js/contactForm.js"></script>
+    <script src="js/dynamicMenu.js"></script>
+
 </body>
 
 </html>

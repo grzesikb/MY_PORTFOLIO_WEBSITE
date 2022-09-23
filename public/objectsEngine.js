@@ -5,8 +5,9 @@
 /* --  LIBRARY  -- */
 import * as THREE from 'three';
 import { OrbitControls } from './jsm/controls/OrbitControls.js';
-import { MTLLoader } from './jsm/loaders/MTLLoader.js';
-import { OBJLoader } from './jsm/loaders/OBJLoader.js';
+//import { MTLLoader } from './jsm/loaders/MTLLoader.js';
+//import { OBJLoader } from './jsm/loaders/OBJLoader.js';
+import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
 // import { EffectComposer } from './jsm/postprocessing/EffectComposer.js';
 // import { RenderPass } from './jsm/postprocessing/RenderPass.js';
 // import { OutlinePass } from './jsm/postprocessing/OutlinePass.js';
@@ -19,10 +20,10 @@ import { OBJLoader } from './jsm/loaders/OBJLoader.js';
 window.addEventListener('load', init, false);
 
 function init() {
-    useLoader();
-    createWorld();
-    createLight();
-    createMainOBJ();
+    createLoader();
+    createScene();
+    createLights();
+    addMainObjects();
     responsiveScene();
     aboutNavigation();
     animate();
@@ -33,7 +34,7 @@ const loadingManager = new THREE.LoadingManager();
 var progessRealStatus = 0;
 var progessFakeStatus = 0;
 
-function useLoader() {
+function createLoader() {
     var interval = setInterval(() => {
         document.getElementById('progressCount').innerText = progessFakeStatus + '%';
         progessFakeStatus++;
@@ -57,8 +58,9 @@ function useLoader() {
 /* --  CREATE WORLD  -- */
 
 var scene, camera, renderer, controls;
-function createWorld() {
+function createScene() {
     scene = new THREE.Scene();
+    scene.fog = new THREE.Fog( 0x111111, 1, 9 );
     //
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
 
@@ -71,20 +73,19 @@ function createWorld() {
     document.querySelector('.objects3d').appendChild(renderer.domElement); // set element where display
     renderer.setClearColor(0x111111, 0); // set background color
 
-    // Change THEME
-    const changeThemeBTN = document.querySelector('.changeTheme');
+
+    //Change THEME
     const r = document.querySelector(':root');
     var themeStatus = 1;
-
     //
-
-    changeThemeBTN.addEventListener('click', () => {
+    document.querySelector('.theme__btn').addEventListener('click', () => {
         if (themeStatus) {
             themeStatus = 0;
-            r.style.setProperty("--font-color", "#000000");
+            r.style.setProperty("--font-color", "#444");
             r.style.setProperty("--logo-color", "#000000");
-            r.style.setProperty("--font-color-hover", "#0c0c0c");
-            r.style.setProperty("--backgroud-color-contrast", "#eeeeee");
+            //r.style.setProperty("--font-color-hover", "#0c0c0c");
+            r.style.setProperty("--background-color-menubtn", "rgba(90, 90, 90, 0.1)");
+            r.style.setProperty("--backgroud-color-contrast", "#efefef");
             document.querySelector('html').style.backgroundColor = "#e4e4e4";
             //
             r.style.setProperty("--backgroud-color", "e4e4e4");
@@ -94,8 +95,9 @@ function createWorld() {
             themeStatus = 1;
             r.style.setProperty("--font-color", "#e6e6e6");
             r.style.setProperty("--logo-color", "#ffffff");
-            r.style.setProperty("--font-color-hover", "#ffffff");
-            r.style.setProperty("--backgroud-color-contrast", "#1e1e1e");
+            //r.style.setProperty("--font-color-hover", "#ffffff");
+            r.style.setProperty("--background-color-menubtn", "rgba(233, 233, 233, 0.1)");
+            r.style.setProperty("--backgroud-color-contrast", "#222222");
             document.querySelector('html').style.backgroundColor = "#111111";
             //
             r.style.setProperty("--backgroud-color", "111111");
@@ -161,7 +163,7 @@ function responsiveScene() {
 
 /* --  CREATE LIGHT  -- */
 
-function createLight() {
+function createLights() {
 
     const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.7);
     hemiLight.color.setHSL(0, 1, 0.85); //0.67, 0.27, 0.43
@@ -169,24 +171,15 @@ function createLight() {
     hemiLight.position.set(0, 50, 0);
     scene.add(hemiLight);
 
+    const pLight = new THREE.PointLight(0xbf1c1c, 0.5, 4); 
+    pLight.position.set(-1, 1.75, 1);
+    scene.add(pLight);
+
     const dirLight = new THREE.DirectionalLight(0xffffff, 1);
     dirLight.color.setHSL(1, 0.1, 0.82);
     dirLight.position.set(-1, 1.75, 1);
     dirLight.position.multiplyScalar(30);
-
-    // dirLight.castShadow = true;
-    // dirLight.shadow.mapSize.width = 1024;
-    // dirLight.shadow.mapSize.height = 1024;
-    // const d = 10;
-    // dirLight.shadow.camera.left = - d;
-    // dirLight.shadow.camera.right = d;
-    // dirLight.shadow.camera.top = d;
-    // dirLight.shadow.camera.bottom = - d;
-    // dirLight.shadow.camera.far = 1000;
-
     scene.add(dirLight);
-
-
 
     const dirLight2 = new THREE.DirectionalLight(0xb18556, 0.3);
     dirLight2.position.set(1, 0.4, -1);
@@ -196,60 +189,58 @@ function createLight() {
 /* --  CREATE ALL MAIN OBJ  -- */
 
 var onProgress;
-var Flower3d;
-
-function createMainOBJ() {
+let mixer;
+function addMainObjects() {
 
     onProgress = function (xhr) {
-
         if (xhr.lengthComputable) {
-
             const percentComplete = xhr.loaded / xhr.total * 100;
-            console.log(Math.round(percentComplete, 2) + '% downloaded');
-
+            console.log('Download objects: ' + Math.round(percentComplete, 2) + '%');
         }
-
     };
-    // add Cardboard
-    new MTLLoader(loadingManager).load('./res/Cardboard.mtl',
-        function (materials) {
-            materials.preload();
-            new OBJLoader(loadingManager)
-                .setMaterials(materials)
-                .load('./res/Cardboard.obj',
-                    function (object) {
-                        // object.position.set()
-                        scene.add(object);
-                    },
-                    onProgress);
-        });
 
+    const Cardboard = new GLTFLoader(loadingManager);
+    Cardboard.load('./res/DCardboard.glb',
+        function (gltf) {
+        const model = gltf.scene;
+        scene.add(model);
+        }, onProgress, function(error) {console.error(error);}
+    );
+    
+
+    // PLANE
+    // const plane = new THREE.Mesh(new THREE.PlaneGeometry(15, 15), 
+    //                              new THREE.MeshBasicMaterial({color: 0x030303}));
+    // plane.rotateX(-1.57);           
+    // plane.position.set(0, -1.1, 0);
+    // scene.add(plane);
+
+
+    // const Cardboard = new GLTFLoader(loadingManager);
+    // Cardboard.load('./res/ACardboard.glb',
+    //     function (gltf) {
+    //     const model = gltf.scene;
+    //     scene.add(model);
+    //     mixer = new THREE.AnimationMixer(model);
+    //     const clips = gltf.animations;
+    //     const clip = THREE.AnimationClip.findByName(clips, 'openBox');
+    //     const action = mixer.clipAction(clip);
+    //     action.play();
+
+    // }, undefined, function(error) {
+    //     console.error(error);
+    // });
 
 
     // add Flower
-    Flower3d = new THREE.Object3D();
-    new MTLLoader(loadingManager).load('./res/Flower.mtl',
-        function (materials) {
-            materials.preload();
-            new OBJLoader(loadingManager)
-                .setMaterials(materials)
-                .load('./res/Flower.obj',
-                    function (object) {
-                        object.position.set(1.32, -1, 0.6);
-                        //object.scale.set(0.9,0.9,0.9);
-                        object.receiveShadow = true;
-                        object.castShadow = true;
+    //                     object.position.set(1.32, -1, 0.6);
+    //                     //object.scale.set(0.9,0.9,0.9);
+    //                     object.receiveShadow = true;
 
-                        Flower3d.add(object);
-                    },
-                    onProgress);
-        });
-    scene.add(Flower3d);
 }
 
-const about = document.querySelector('.about');
 function aboutNavigation() {
-    about.addEventListener('click', () => {
+    document.querySelector('.about__btn').addEventListener('click', () => {
         stopAnimation(15000);
         gsap.to(scene.rotation, {
             y: 1.8,
@@ -259,9 +250,9 @@ function aboutNavigation() {
             }
         })
         gsap.to(camera.position, {
-            x: 0.5,
-            y: -0.7,
-            z: 1.7,
+            x: 0.45,
+            y: -0.9,
+            z: 2.1,
             duration: 2.5,
             onUpdate: function () {
                 camera.lookAt(0, 0, 0);
@@ -274,13 +265,13 @@ function aboutNavigation() {
 
 
 
-
 /* --  ANIMATIONS  -- */
-
+//const clock = THREE.Clock();
 function animate() {
     if (isPlay) scene.rotation.y += 0.0006;
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
+    //mixer.update(clock.getDelta());
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
 }
