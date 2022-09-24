@@ -1,35 +1,41 @@
 /* --  Bartłomiej Grzesik 2022 Copyright©  -- */
+/* --  objectsEngine.js  -- */
 
-/* --  OBJECT ENGINE  -- */
 
+//
 /* --  LIBRARY  -- */
+//
 import * as THREE from 'three';
 import { OrbitControls } from './jsm/controls/OrbitControls.js';
-//import { MTLLoader } from './jsm/loaders/MTLLoader.js';
-//import { OBJLoader } from './jsm/loaders/OBJLoader.js';
 import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
+
+import { Mesh } from "three";
+// import { Stats } from './jsm/libs/stats.module'
 // import { EffectComposer } from './jsm/postprocessing/EffectComposer.js';
 // import { RenderPass } from './jsm/postprocessing/RenderPass.js';
 // import { OutlinePass } from './jsm/postprocessing/OutlinePass.js';
 
 
 
-
-/* --  INIT ALL  -- */
-
+//
+/* --  INIT  -- */
+//
 window.addEventListener('load', init, false);
 
 function init() {
     createLoader();
-    createScene();
+    createEnvironment();
     createLights();
     addMainObjects();
+    addPortfolioObjects();
     responsiveScene();
     aboutNavigation();
     animate();
 }
 
-/* --  LOADER & LOADING MANAGER  -- */
+//
+/* --  LOADING MANAGER  -- */
+//
 const loadingManager = new THREE.LoadingManager();
 var progessRealStatus = 0;
 var progessFakeStatus = 0;
@@ -55,15 +61,15 @@ function createLoader() {
     }
 }
 
-/* --  CREATE WORLD  -- */
-
+//
+/* --  CREATE ENVIRONMENT  -- */
+//
 var scene, camera, renderer, controls;
-function createScene() {
+function createEnvironment() {
     scene = new THREE.Scene();
-    scene.fog = new THREE.Fog( 0x111111, 1, 9 );
+    scene.fog = new THREE.Fog(0x111111, 1, 9);
     //
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-
     //
     // renderer settings
     renderer = new THREE.WebGLRenderer();
@@ -72,9 +78,8 @@ function createScene() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.querySelector('.objects3d').appendChild(renderer.domElement); // set element where display
     renderer.setClearColor(0x111111, 0); // set background color
-
-
-    //Change THEME
+    //
+    // Change THEME
     const r = document.querySelector(':root');
     var themeStatus = 1;
     //
@@ -104,7 +109,7 @@ function createScene() {
             // renderer.setClearColor(0x111111, 1);
         }
     });
-
+    //
     // controls settings
     controls = new OrbitControls(camera, renderer.domElement);
     //controls.enableZoom = false;
@@ -112,10 +117,10 @@ function createScene() {
     controls.enablePan = false;
     controls.maxPolarAngle = Math.PI / 2; // create floor - dont see a down side
     controls.rotateSpeed = 0.9;
-
-
 }
-
+//
+/* -- CREATE A RESPONSIVE SCENE -- */
+//
 function responsiveScene() {
     // responsive
     let windowWidth = window.innerWidth;
@@ -130,9 +135,10 @@ function responsiveScene() {
         controls.maxDistance = 4.1;
     }
     if (windowWidth < 700) {
-        camera.position.z = 4.6;
-        controls.minDistance = 4.1;
+        camera.position.z = 4.3;
+        controls.minDistance = 2.8;
         controls.maxDistance = 5.1;
+        scene.fog = new THREE.Fog(0x111111, 3, 12);
     }
 
 
@@ -149,8 +155,8 @@ function responsiveScene() {
             controls.maxDistance = 4.1;
         }
         if (window.innerWidth < 700) {
-            camera.position.z = 4.6;
-            controls.minDistance = 4.1;
+            camera.position.z = 4.3;
+            controls.minDistance = 2.8;
             controls.maxDistance = 5.1;
         }
         // 
@@ -160,36 +166,36 @@ function responsiveScene() {
         camera.updateProjectionMatrix();
     }, false);
 }
-
-/* --  CREATE LIGHT  -- */
-
+//
+/* --  CREATE LIGHTS  -- */
+//
 function createLights() {
-
+    // main light
     const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.7);
     hemiLight.color.setHSL(0, 1, 0.85); //0.67, 0.27, 0.43
     hemiLight.groundColor.setHSL(0.095, 1, 0.75);
     hemiLight.position.set(0, 50, 0);
     scene.add(hemiLight);
-
-    const pLight = new THREE.PointLight(0xbf1c1c, 0.5, 4); 
+    // small red point light
+    const pLight = new THREE.PointLight(0xbf1c1c, 0.5, 4);
     pLight.position.set(-1, 1.75, 1);
     scene.add(pLight);
-
+    // white directional light
     const dirLight = new THREE.DirectionalLight(0xffffff, 1);
     dirLight.color.setHSL(1, 0.1, 0.82);
     dirLight.position.set(-1, 1.75, 1);
     dirLight.position.multiplyScalar(30);
     scene.add(dirLight);
-
+    // light-yellow directional light
     const dirLight2 = new THREE.DirectionalLight(0xb18556, 0.3);
     dirLight2.position.set(1, 0.4, -1);
     scene.add(dirLight2);
 }
-
-/* --  CREATE ALL MAIN OBJ  -- */
-
+//
+/* --  ADD MAIN OBJECT (CARDBOARD)  -- */
+//
 var onProgress;
-let mixer;
+//let mixer;
 function addMainObjects() {
 
     onProgress = function (xhr) {
@@ -202,11 +208,20 @@ function addMainObjects() {
     const Cardboard = new GLTFLoader(loadingManager);
     Cardboard.load('./res/DCardboard.glb',
         function (gltf) {
-        const model = gltf.scene;
-        scene.add(model);
-        }, onProgress, function(error) {console.error(error);}
+            const model = gltf.scene;
+            scene.add(model);
+        }, onProgress, function (error) { console.error(error); }
     );
-    
+    const dog = new GLTFLoader(loadingManager);
+    dog.load('./res/dog.glb',
+        function (gltf) {
+            const model = gltf.scene;
+            model.scale.set(0.1, 0.1, 0.1);
+            model.position.set(1.3, -1.05, 0.6);
+            model.rotateY(1);
+            scene.add(model);
+        }, onProgress, function (error) { console.error(error); }
+    );
 
     // PLANE
     // const plane = new THREE.Mesh(new THREE.PlaneGeometry(15, 15), 
@@ -239,16 +254,93 @@ function addMainObjects() {
 
 }
 
+
+//
+/* -- ON CLICK PORTFOLIO OBJECTS -- */
+//
+let mouse = { x: 0, y: 0 };
+function onClickObject(event) { 
+    event.preventDefault();
+    //
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    //
+    // let vector = new THREE.Vector3(mouse.x, mouse.y, camera.position.z);
+    let raycaster = new THREE.Raycaster();
+
+    raycaster.setFromCamera(mouse, camera);
+    var intersects = raycaster.intersectObjects(scene.children); 
+    // Main if 
+    if (intersects.length > 0) {
+        if(intersects[0].object.name == 'testMesh') console.log('czerwony');
+        if(intersects[0].object.name == 'testMesh2') console.log('zielony');
+    }   
+}
+
+//
+/* -- ON MOUSE OVER PORTFOLIO OBJECTS -- */
+//
+//const pointer = new THREE.Vector2();
+//let INTERSECTED;
+// function onMouseOverObject(event) { 
+//     event.preventDefault();
+//     //
+//     pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+//     pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+//     //
+//     // let vector = new THREE.Vector3(mouse.x, mouse.y, camera.position.z);
+//     let raycaster = new THREE.Raycaster();
+
+//     raycaster.setFromCamera(mouse, camera);
+//     var intersects = raycaster.intersectObjects(scene.children, false); 
+//     // Main if 
+//     if (intersects.length > 0) {
+//         if ( INTERSECTED != intersects[ 0 ].object ) {
+            
+//             document.querySelector('.objects3d').style.cursor = 'pointer';
+//         }
+//         INTERSECTED = intersects[ 0 ].object;
+//     } else {
+//         if(INTERSECTED) document.querySelector('.objects3d').style.cursor = 'grab'; 
+//         INTERSECTED = null;
+//     }
+// }
+
+//
+/* -- ADD OBJECTS CONTENT IN CARDBOARD -- */
+//
+let testMesh, testMesh2;
+function addPortfolioObjects() {
+
+    testMesh = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4),
+                              new THREE.MeshBasicMaterial({ color: 0xff0000}));
+    testMesh2 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4),
+                               new THREE.MeshBasicMaterial({ color: 0x00ff00}));
+    testMesh2.position.set(0, 0, -0.5);
+
+    scene.add(testMesh, testMesh2);
+    testMesh.name = 'testMesh';
+    testMesh2.name = 'testMesh2';
+
+    // LISTENER ON CLICK OBJECTS
+    window.addEventListener("click", onClickObject);
+    //window.addEventListener("pointermove", onMouseOverObject);
+}
+
+
+//
+/* -- ABOUT NAVIGATION -- */
+//
 function aboutNavigation() {
     document.querySelector('.about__btn').addEventListener('click', () => {
         stopAnimation(15000);
         gsap.to(scene.rotation, {
             y: 1.8,
-            duration: 1,
+            duration: 0.5,
             onUpdate: function () {
                 camera.lookAt(0, 0, 0);
             }
-        })
+        });
         gsap.to(camera.position, {
             x: 0.45,
             y: -0.9,
@@ -263,27 +355,28 @@ function aboutNavigation() {
     });
 }
 
-
-
+//
 /* --  ANIMATIONS  -- */
+//
 //const clock = THREE.Clock();
 function animate() {
     if (isPlay) scene.rotation.y += 0.0006;
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     //mixer.update(clock.getDelta());
+    
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
 }
 
-// stop rotate animation 
-
+// sleep rotate animation function
 var isPlay = 1;
 function sleep(time) { return new Promise((resolve) => setTimeout(resolve, time)); }
 function stopAnimation(time) {
     isPlay = 0;
     sleep(time).then(() => { isPlay = 1; });
 }
+// listener on click object. It sleep animation and hide info description
 const infoTab = document.querySelector('.info');
 var infoTab_status = 1;
 document.querySelector('.objects3d').addEventListener('mousedown', () => {
