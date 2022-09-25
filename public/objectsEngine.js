@@ -9,7 +9,6 @@ import * as THREE from 'three';
 import { OrbitControls } from './jsm/controls/OrbitControls.js';
 import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
 
-import { Mesh } from "three";
 // import { Stats } from './jsm/libs/stats.module'
 // import { EffectComposer } from './jsm/postprocessing/EffectComposer.js';
 // import { RenderPass } from './jsm/postprocessing/RenderPass.js';
@@ -125,16 +124,19 @@ function responsiveScene() {
     // responsive
     let windowWidth = window.innerWidth;
     if (windowWidth > 950) {
+        zResponsivePoint = 2.1;
         camera.position.z = 2.9;
         controls.minDistance = 2.4;
         controls.maxDistance = 3.4;
     }
     if (windowWidth < 950) {
+        zResponsivePoint = 2.8;
         camera.position.z = 3.6;
         controls.minDistance = 3.1;
         controls.maxDistance = 4.1;
     }
     if (windowWidth < 700) {
+        zResponsivePoint = 3.1;
         camera.position.z = 4.3;
         controls.minDistance = 2.8;
         controls.maxDistance = 5.1;
@@ -145,16 +147,19 @@ function responsiveScene() {
     window.addEventListener('resize', () => {
         // object responsive
         if (window.innerWidth > 950) {
+            zResponsivePoint = 2.1;
             camera.position.z = 2.9;
             controls.minDistance = 2.4;
             controls.maxDistance = 3.4;
         }
         if (window.innerWidth < 950) {
+            zResponsivePoint = 2.8;
             camera.position.z = 3.6;
             controls.minDistance = 3.1;
             controls.maxDistance = 4.1;
         }
         if (window.innerWidth < 700) {
+            zResponsivePoint = 3.1;
             camera.position.z = 4.3;
             controls.minDistance = 2.8;
             controls.maxDistance = 5.1;
@@ -191,6 +196,68 @@ function createLights() {
     dirLight2.position.set(1, 0.4, -1);
     scene.add(dirLight2);
 }
+
+//
+/* -- ABOUT NAVIGATION -- */
+//
+var zResponsivePoint;
+function aboutNavigation() {
+    document.querySelector('.about__btn').addEventListener('click', () => {
+        stopAnimation(15000);
+        gsap.to(scene.rotation, {
+            y: 1.8,
+            duration: 0.5,
+            onUpdate: function () {
+                camera.lookAt(0, 0, 0);
+            }
+        });
+        gsap.to(camera.position, {
+            x: 0.45,
+            y: -0.9,
+            z: zResponsivePoint,
+            duration: 2.5,
+            onUpdate: function () {
+                camera.lookAt(0, 0, 0);
+            }
+        });
+
+
+    });
+}
+
+//
+/* --  ANIMATIONS  -- */
+//
+//const clock = THREE.Clock();
+function animate() {
+    if (isPlay) scene.rotation.y += 0.0006;
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    //mixer.update(clock.getDelta());
+    //controls.update();
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+}
+
+// sleep rotate animation function
+var isPlay = 1;
+function sleep(time) { return new Promise((resolve) => setTimeout(resolve, time)); }
+function stopAnimation(time) {
+    isPlay = 0;
+    sleep(time).then(() => { isPlay = 1; });
+}
+// listener on click object. It sleep animation and hide info description
+const infoTab = document.querySelector('.info');
+var infoTab_status = 1;
+document.querySelector('.objects3d').addEventListener('mousedown', () => {
+    stopAnimation(10000);
+    if (infoTab_status == 1) {
+        infoTab.style.transform = 'translateY(100vh)';
+        infoTab_status = 0;
+    }
+
+});
+
 //
 /* --  ADD MAIN OBJECT (CARDBOARD)  -- */
 //
@@ -206,22 +273,13 @@ function addMainObjects() {
     };
 
     const Cardboard = new GLTFLoader(loadingManager);
-    Cardboard.load('./res/DCardboard.glb',
+    Cardboard.load('./res/ECardboard.glb',
         function (gltf) {
             const model = gltf.scene;
             scene.add(model);
         }, onProgress, function (error) { console.error(error); }
     );
-    const dog = new GLTFLoader(loadingManager);
-    dog.load('./res/dog.glb',
-        function (gltf) {
-            const model = gltf.scene;
-            model.scale.set(0.1, 0.1, 0.1);
-            model.position.set(1.3, -1.05, 0.6);
-            model.rotateY(1);
-            scene.add(model);
-        }, onProgress, function (error) { console.error(error); }
-    );
+
 
     // PLANE
     // const plane = new THREE.Mesh(new THREE.PlaneGeometry(15, 15), 
@@ -246,146 +304,70 @@ function addMainObjects() {
     //     console.error(error);
     // });
 
-
-    // add Flower
-    //                     object.position.set(1.32, -1, 0.6);
-    //                     //object.scale.set(0.9,0.9,0.9);
-    //                     object.receiveShadow = true;
-
 }
 
 
 //
 /* -- ON CLICK PORTFOLIO OBJECTS -- */
 //
-let mouse = { x: 0, y: 0 };
-function onClickObject(event) { 
-    event.preventDefault();
+let mouseClick = new THREE.Vector2();
+function onClickObject(event) {
+    //event.preventDefault();
     //
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    mouseClick.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouseClick.y = -(event.clientY / window.innerHeight) * 2 + 1;
     //
-    // let vector = new THREE.Vector3(mouse.x, mouse.y, camera.position.z);
     let raycaster = new THREE.Raycaster();
-
-    raycaster.setFromCamera(mouse, camera);
-    var intersects = raycaster.intersectObjects(scene.children); 
+    raycaster.setFromCamera(mouseClick, camera);
+    let intersects = raycaster.intersectObjects(scene.children);
     // Main if 
     if (intersects.length > 0) {
-        if(intersects[0].object.name == 'testMesh') console.log('czerwony');
-        if(intersects[0].object.name == 'testMesh2') console.log('zielony');
-    }   
+        if (intersects[0].object.name == 'testMesh') console.log('czerwony');
+        if (intersects[0].object.name == 'testMesh2') console.log('zielony');
+    }
 }
-
 //
 /* -- ON MOUSE OVER PORTFOLIO OBJECTS -- */
 //
-//const pointer = new THREE.Vector2();
-//let INTERSECTED;
-// function onMouseOverObject(event) { 
-//     event.preventDefault();
-//     //
-//     pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-//     pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
-//     //
-//     // let vector = new THREE.Vector3(mouse.x, mouse.y, camera.position.z);
-//     let raycaster = new THREE.Raycaster();
+let mouseOver = new THREE.Vector2();
+function onMouseOverObject(event) {
+    //if ( event.isPrimary === false ) return;
+    //
+    mouseOver.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouseOver.y = - (event.clientY / window.innerHeight) * 2 + 1;
+    //
+    let raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouseOver, camera);
+    let intersects = raycaster.intersectObject(scene, true);
 
-//     raycaster.setFromCamera(mouse, camera);
-//     var intersects = raycaster.intersectObjects(scene.children, false); 
-//     // Main if 
-//     if (intersects.length > 0) {
-//         if ( INTERSECTED != intersects[ 0 ].object ) {
-            
-//             document.querySelector('.objects3d').style.cursor = 'pointer';
-//         }
-//         INTERSECTED = intersects[ 0 ].object;
-//     } else {
-//         if(INTERSECTED) document.querySelector('.objects3d').style.cursor = 'grab'; 
-//         INTERSECTED = null;
-//     }
-// }
+    if (intersects.length > 0) {
+        if (intersects[0].object.name == 'testMesh') console.log('czerwonyNA');
+        if (intersects[0].object.name == 'testMesh2') console.log('zielonyNA');
+    }
+}
 
 //
 /* -- ADD OBJECTS CONTENT IN CARDBOARD -- */
 //
 let testMesh, testMesh2;
 function addPortfolioObjects() {
-
+    //
     testMesh = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4),
-                              new THREE.MeshBasicMaterial({ color: 0xff0000}));
+        new THREE.MeshBasicMaterial({ color: 0xff0000 }));
     testMesh2 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4),
-                               new THREE.MeshBasicMaterial({ color: 0x00ff00}));
+        new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
     testMesh2.position.set(0, 0, -0.5);
 
     scene.add(testMesh, testMesh2);
     testMesh.name = 'testMesh';
     testMesh2.name = 'testMesh2';
 
-    // LISTENER ON CLICK OBJECTS
-    window.addEventListener("click", onClickObject);
-    //window.addEventListener("pointermove", onMouseOverObject);
+    // LISTENER ON CLICK AND HOVER OBJECTS
+    window.addEventListener('click', onClickObject);
+    window.addEventListener('pointermove', onMouseOverObject);
+
 }
 
 
-//
-/* -- ABOUT NAVIGATION -- */
-//
-function aboutNavigation() {
-    document.querySelector('.about__btn').addEventListener('click', () => {
-        stopAnimation(15000);
-        gsap.to(scene.rotation, {
-            y: 1.8,
-            duration: 0.5,
-            onUpdate: function () {
-                camera.lookAt(0, 0, 0);
-            }
-        });
-        gsap.to(camera.position, {
-            x: 0.45,
-            y: -0.9,
-            z: 2.1,
-            duration: 2.5,
-            onUpdate: function () {
-                camera.lookAt(0, 0, 0);
-            }
-        });
-
-
-    });
-}
-
-//
-/* --  ANIMATIONS  -- */
-//
-//const clock = THREE.Clock();
-function animate() {
-    if (isPlay) scene.rotation.y += 0.0006;
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    //mixer.update(clock.getDelta());
-    
-    requestAnimationFrame(animate);
-    renderer.render(scene, camera);
-}
-
-// sleep rotate animation function
-var isPlay = 1;
-function sleep(time) { return new Promise((resolve) => setTimeout(resolve, time)); }
-function stopAnimation(time) {
-    isPlay = 0;
-    sleep(time).then(() => { isPlay = 1; });
-}
-// listener on click object. It sleep animation and hide info description
-const infoTab = document.querySelector('.info');
-var infoTab_status = 1;
-document.querySelector('.objects3d').addEventListener('mousedown', () => {
-    stopAnimation(10000);
-    if (infoTab_status == 1) {
-        infoTab.style.transform = 'translateY(100vh)';
-        infoTab_status = 0;
-    }
-
-});
 
 
