@@ -39,9 +39,9 @@ body {
 }
 
 .content:active {
-  cursor: -webkit-grabbing;
-  cursor:    -moz-grabbing;
-  cursor:         grabbing;
+  cursor: -webkit-grabbing !important;
+  cursor:    -moz-grabbing !important;
+  cursor:         grabbing !important;
 }
 
 .noselect {
@@ -74,8 +74,8 @@ body {
 }
 
 /*--- RESOURCES ---*/
-@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital@0;1&family=Space+Grotesk&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital@0;1&family=Space+Grotesk&display=swap'); */
 
 /*--- LOGO ---*/
 
@@ -132,6 +132,7 @@ body {
 
 /* --- LOADER --- */
 #loader {
+  display: none;
   position: fixed;
   z-index: 100;
   height: 100vh;

@@ -9,12 +9,12 @@ import * as THREE from 'three';
 import { OrbitControls } from './jsm/controls/OrbitControls.js';
 import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
 
-// import { Stats } from './jsm/libs/stats.module'
+// OUTLINE
+// import { OutlinePass } from './jsm/postprocessing/OutlinePass.js';
 // import { EffectComposer } from './jsm/postprocessing/EffectComposer.js';
 // import { RenderPass } from './jsm/postprocessing/RenderPass.js';
-// import { OutlinePass } from './jsm/postprocessing/OutlinePass.js';
-
-
+// import { ShaderPass } from './jsm/postprocessing/ShaderPass.js';
+// import { FXAAShader } from './jsm/shaders/FXAAShader.js';
 
 //
 /* --  INIT  -- */
@@ -38,13 +38,12 @@ function init() {
 const loadingManager = new THREE.LoadingManager();
 var progessRealStatus = 0;
 var progessFakeStatus = 0;
-
 function createLoader() {
     var interval = setInterval(() => {
         document.getElementById('progressCount').innerText = progessFakeStatus + '%';
         progessFakeStatus++;
-        if (progessFakeStatus == 101) {
-            if (progessRealStatus == 1 && progessFakeStatus == 101) {
+        if (progessFakeStatus === 101) {
+            if (progessRealStatus === 1 && progessFakeStatus == 101) {
                 document.getElementById("loader").style.transform = "translateY(-110%)";
                 document.getElementById("loader").style.borderRadius = "10%";
                 document.querySelector('.objects3d').style.transform = 'translateY(0)';
@@ -77,6 +76,7 @@ function createEnvironment() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.querySelector('.objects3d').appendChild(renderer.domElement); // set element where display
     renderer.setClearColor(0x111111, 0); // set background color
+    renderer.setAnimationLoop(animate);
     //
     // Change THEME
     const r = document.querySelector(':root');
@@ -228,14 +228,13 @@ function aboutNavigation() {
 //
 /* --  ANIMATIONS  -- */
 //
-//const clock = THREE.Clock();
+const clock = new THREE.Clock();
 function animate() {
     if (isPlay) scene.rotation.y += 0.0006;
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    //mixer.update(clock.getDelta());
-    //controls.update();
-    requestAnimationFrame(animate);
+    if (mixer) mixer.update(clock.getDelta());
+    //requestAnimationFrame(animate);
     renderer.render(scene, camera);
 }
 
@@ -262,7 +261,7 @@ document.querySelector('.objects3d').addEventListener('mousedown', () => {
 /* --  ADD MAIN OBJECT (CARDBOARD)  -- */
 //
 var onProgress;
-//let mixer;
+let mixer;
 function addMainObjects() {
 
     onProgress = function (xhr) {
@@ -272,13 +271,13 @@ function addMainObjects() {
         }
     };
 
-    const Cardboard = new GLTFLoader(loadingManager);
-    Cardboard.load('./res/ECardboard.glb',
-        function (gltf) {
-            const model = gltf.scene;
-            scene.add(model);
-        }, onProgress, function (error) { console.error(error); }
-    );
+    // const Cardboard = new GLTFLoader(loadingManager);
+    // Cardboard.load('./res/NEWCardboard.glb',
+    //     function (gltf) {
+    //         const model = gltf.scene;
+    //         scene.add(model);
+    //     }, onProgress, function (error) { console.error(error); }
+    // );
 
 
     // PLANE
@@ -288,24 +287,18 @@ function addMainObjects() {
     // plane.position.set(0, -1.1, 0);
     // scene.add(plane);
 
-
-    // const Cardboard = new GLTFLoader(loadingManager);
-    // Cardboard.load('./res/ACardboard.glb',
-    //     function (gltf) {
-    //     const model = gltf.scene;
-    //     scene.add(model);
-    //     mixer = new THREE.AnimationMixer(model);
-    //     const clips = gltf.animations;
-    //     const clip = THREE.AnimationClip.findByName(clips, 'openBox');
-    //     const action = mixer.clipAction(clip);
-    //     action.play();
-
-    // }, undefined, function(error) {
-    //     console.error(error);
-    // });
-
+    const Cardboard = new GLTFLoader(loadingManager);
+    Cardboard.load('./res/HHCardboard.glb',
+        function (gltf) {
+        const model = gltf.scene;
+        scene.add(model);
+        mixer = new THREE.AnimationMixer(model);
+        const clip = THREE.AnimationClip.findByName(gltf.animations, 'openBox');
+        const action = mixer.clipAction(clip);
+        action.setLoop(THREE.LoopOnce);
+        action.play();
+    }, onProgress, function (error) { console.error(error); });
 }
-
 
 //
 /* -- ON CLICK PORTFOLIO OBJECTS -- */
@@ -329,6 +322,13 @@ function onClickObject(event) {
 //
 /* -- ON MOUSE OVER PORTFOLIO OBJECTS -- */
 //
+// let selectedObjects = [];
+// function addSelectedObject( object ) {
+
+//     selectedObjects = [];
+//     selectedObjects.push( object );
+
+// }
 let mouseOver = new THREE.Vector2();
 function onMouseOverObject(event) {
     //if ( event.isPrimary === false ) return;
@@ -341,15 +341,24 @@ function onMouseOverObject(event) {
     let intersects = raycaster.intersectObject(scene, true);
 
     if (intersects.length > 0) {
+        // const selectedObject = intersects[ 0 ].object;
+        // addSelectedObject( selectedObject );
+        // outlinePass.selectedObjects = selectedObjects;
+        if (intersects[0].object.name == 'testMesh' ||
+            intersects[0].object.name == 'testMesh2')
+            document.querySelector('.content').style.cursor = 'pointer';
         if (intersects[0].object.name == 'testMesh') console.log('czerwonyNA');
         if (intersects[0].object.name == 'testMesh2') console.log('zielonyNA');
+    } else {
+        document.querySelector('.content').style.cursor = 'grab';
     }
 }
 
 //
 /* -- ADD OBJECTS CONTENT IN CARDBOARD -- */
 //
-let testMesh, testMesh2;
+let testMesh, testMesh2, testMesh3;
+//let composer, renderPass, outlinePass, effectFXAA;
 function addPortfolioObjects() {
     //
     testMesh = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4),
@@ -357,17 +366,39 @@ function addPortfolioObjects() {
     testMesh2 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4),
         new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
     testMesh2.position.set(0, 0, -0.5);
+    testMesh3 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4),
+        new THREE.MeshBasicMaterial({ color: 0x0000ff }));
+    testMesh3.position.set(0, 0, 0.5);
 
-    scene.add(testMesh, testMesh2);
+    scene.add(testMesh, testMesh2, testMesh3);
     testMesh.name = 'testMesh';
     testMesh2.name = 'testMesh2';
+    testMesh3.name = 'testMesh3';
+
+    // OUTLINE 
+    // composer = new EffectComposer( renderer );
+    // renderPass = new RenderPass( scene, camera );
+    // composer.addPass( renderPass );
+
+    // outlinePass = new OutlinePass(new THREE.Vector2( window.innerWidth, window.innerHeight ), scene, camera);
+    // outlinePass.edgeStrength = 10;
+    // outlinePass.edgeGlow = 0;
+    // outlinePass.edgeThickness = 1;
+    // outlinePass.pulsePeriod = 0;
+    // outlinePass.visibleEdgeColor.set( "#ffffff" );
+    // outlinePass.hiddenEdgeColor.set( "#000000" );
+    // composer.addPass( outlinePass );
+
+    // effectFXAA = new ShaderPass(THREE.FXAAShader);
+    // effectFXAA.uniforms['resolution'].value.set(1 / window.innerWidth, 1 / window.innerHeight);
+    // effectFXAA.renderToScreen = true;
+    // composer.addPass(effectFXAA);
+    // composer.addPass(outlinePass);
+
 
     // LISTENER ON CLICK AND HOVER OBJECTS
     window.addEventListener('click', onClickObject);
     window.addEventListener('pointermove', onMouseOverObject);
 
 }
-
-
-
 
