@@ -20,7 +20,6 @@ import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
 /* --  INIT  -- */
 //
 window.addEventListener('load', init, false);
-
 function init() {
     createLoader();
     createEnvironment();
@@ -28,37 +27,45 @@ function init() {
     addMainObjects();
     addPortfolioObjects();
     responsiveScene();
-    aboutNavigation();
     animate();
 }
-
 //
 /* --  LOADING MANAGER  -- */
 //
 const loadingManager = new THREE.LoadingManager();
-var progessRealStatus = 0;
-var progessFakeStatus = 0;
+var animationStartTime = 3;
+var zResponsivePoint;
 function createLoader() {
-    var interval = setInterval(() => {
-        document.getElementById('progressCount').innerText = progessFakeStatus + '%';
-        progessFakeStatus++;
-        if (progessFakeStatus === 101) {
-            if (progessRealStatus === 1 && progessFakeStatus == 101) {
-                document.getElementById("loader").style.transform = "translateY(-110%)";
-                document.getElementById("loader").style.borderRadius = "10%";
-                document.querySelector('.objects3d').style.transform = 'translateY(0)';
-            }
-            clearInterval(interval);
-        }
-    }, 20);
-    // loadingManager.onProgress = function(url, loaded, total) {      
-    //     progessRealStatus = Math.round((loaded / total) * 100);
-    // }
     loadingManager.onLoad = function () {
-        progessRealStatus = 1;
+        if(document.getElementById("loader").style.opacity = "0")
+        document.getElementById("loader").style.transform = "translateY(-102%)";
+        //
+        stopAnimation(15000);
+        gsap.to(camera.position, {
+            y: 3,
+            z: 1,
+            duration: 0.2,
+            onUpdate: function () {
+                camera.lookAt(0, 0, 0);
+            }
+        });
+        sleep(animationStartTime * 1000).then(() => { 
+        gsap.to(camera.position, {
+            y: 0.65,
+            z: zResponsivePoint,
+            duration: 2,
+            onUpdate: function () {
+                camera.lookAt(0, 0, 0);
+            }
+        })
+        gsap.to(camera.rotation, {
+            x: -0.223,
+            duration: 2
+        })
+    
+        });
     }
-}
-
+} // x: -0.523, y: 1.6,
 //
 /* --  CREATE ENVIRONMENT  -- */
 //
@@ -78,40 +85,8 @@ function createEnvironment() {
     renderer.setClearColor(0x111111, 0); // set background color
     renderer.setAnimationLoop(animate);
     //
-    // Change THEME
-    const r = document.querySelector(':root');
-    var themeStatus = 1;
-    //
-    document.querySelector('.theme__btn').addEventListener('click', () => {
-        if (themeStatus) {
-            themeStatus = 0;
-            r.style.setProperty("--font-color", "#444");
-            r.style.setProperty("--logo-color", "#000000");
-            //r.style.setProperty("--font-color-hover", "#0c0c0c");
-            r.style.setProperty("--background-color-menubtn", "rgba(90, 90, 90, 0.1)");
-            r.style.setProperty("--backgroud-color-contrast", "#efefef");
-            document.querySelector('html').style.backgroundColor = "#e4e4e4";
-            //
-            r.style.setProperty("--backgroud-color", "e4e4e4");
-            // renderer.setClearColor(0xe4e4e4, 1);
-        }
-        else {
-            themeStatus = 1;
-            r.style.setProperty("--font-color", "#e6e6e6");
-            r.style.setProperty("--logo-color", "#ffffff");
-            //r.style.setProperty("--font-color-hover", "#ffffff");
-            r.style.setProperty("--background-color-menubtn", "rgba(233, 233, 233, 0.1)");
-            r.style.setProperty("--backgroud-color-contrast", "#222222");
-            document.querySelector('html').style.backgroundColor = "#111111";
-            //
-            r.style.setProperty("--backgroud-color", "111111");
-            // renderer.setClearColor(0x111111, 1);
-        }
-    });
-    //
     // controls settings
     controls = new OrbitControls(camera, renderer.domElement);
-    //controls.enableZoom = false;
     controls.enableKeys = false; // disable pan, keys and move obj
     controls.enablePan = false;
     controls.maxPolarAngle = Math.PI / 2; // create floor - dont see a down side
@@ -124,19 +99,19 @@ function responsiveScene() {
     // responsive
     let windowWidth = window.innerWidth;
     if (windowWidth > 950) {
-        zResponsivePoint = 2.1;
+        zResponsivePoint = 3.2;
         camera.position.z = 2.9;
         controls.minDistance = 2.4;
         controls.maxDistance = 3.4;
     }
     if (windowWidth < 950) {
-        zResponsivePoint = 2.8;
+        zResponsivePoint = 3.8;
         camera.position.z = 3.6;
         controls.minDistance = 3.1;
         controls.maxDistance = 4.1;
     }
     if (windowWidth < 700) {
-        zResponsivePoint = 3.1;
+        zResponsivePoint = 4.2;
         camera.position.z = 4.3;
         controls.minDistance = 2.8;
         controls.maxDistance = 5.1;
@@ -147,19 +122,19 @@ function responsiveScene() {
     window.addEventListener('resize', () => {
         // object responsive
         if (window.innerWidth > 950) {
-            zResponsivePoint = 2.1;
+            zResponsivePoint = 2.8;
             camera.position.z = 2.9;
             controls.minDistance = 2.4;
             controls.maxDistance = 3.4;
         }
         if (window.innerWidth < 950) {
-            zResponsivePoint = 2.8;
+            zResponsivePoint = 3.7;
             camera.position.z = 3.6;
             controls.minDistance = 3.1;
             controls.maxDistance = 4.1;
         }
         if (window.innerWidth < 700) {
-            zResponsivePoint = 3.1;
+            zResponsivePoint = 4.1;
             camera.position.z = 4.3;
             controls.minDistance = 2.8;
             controls.maxDistance = 5.1;
@@ -197,33 +172,6 @@ function createLights() {
     scene.add(dirLight2);
 }
 
-//
-/* -- ABOUT NAVIGATION -- */
-//
-var zResponsivePoint;
-function aboutNavigation() {
-    document.querySelector('.about__btn').addEventListener('click', () => {
-        stopAnimation(15000);
-        gsap.to(scene.rotation, {
-            y: 1.8,
-            duration: 0.5,
-            onUpdate: function () {
-                camera.lookAt(0, 0, 0);
-            }
-        });
-        gsap.to(camera.position, {
-            x: 0.45,
-            y: -0.9,
-            z: zResponsivePoint,
-            duration: 2.5,
-            onUpdate: function () {
-                camera.lookAt(0, 0, 0);
-            }
-        });
-
-
-    });
-}
 
 //
 /* --  ANIMATIONS  -- */
@@ -256,7 +204,12 @@ document.querySelector('.objects3d').addEventListener('mousedown', () => {
     }
 
 });
-
+// start animation 
+sleep(animationStartTime * 1000).then(() => { 
+    infoTab.style.opacity = '1'; 
+    document.querySelector('.logo').style.transform = 'translateY(0)';
+    document.querySelector('.contact').style.transform = 'translateY(0)';
+});
 //
 /* --  ADD MAIN OBJECT (CARDBOARD)  -- */
 //
@@ -271,15 +224,6 @@ function addMainObjects() {
         }
     };
 
-    // const Cardboard = new GLTFLoader(loadingManager);
-    // Cardboard.load('./res/NEWCardboard.glb',
-    //     function (gltf) {
-    //         const model = gltf.scene;
-    //         scene.add(model);
-    //     }, onProgress, function (error) { console.error(error); }
-    // );
-
-
     // PLANE
     // const plane = new THREE.Mesh(new THREE.PlaneGeometry(15, 15), 
     //                              new THREE.MeshBasicMaterial({color: 0x030303}));
@@ -288,7 +232,7 @@ function addMainObjects() {
     // scene.add(plane);
 
     const Cardboard = new GLTFLoader(loadingManager);
-    Cardboard.load('./res/HHCardboard.glb',
+    Cardboard.load('./res/HUGCardboard.glb',
         function (gltf) {
         const model = gltf.scene;
         scene.add(model);
@@ -296,7 +240,9 @@ function addMainObjects() {
         const clip = THREE.AnimationClip.findByName(gltf.animations, 'openBox');
         const action = mixer.clipAction(clip);
         action.setLoop(THREE.LoopOnce);
-        action.play();
+        action.startAt(animationStartTime);
+         action.play();
+       
     }, onProgress, function (error) { console.error(error); });
 }
 
